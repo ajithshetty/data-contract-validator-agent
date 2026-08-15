@@ -1,0 +1,12 @@
+{
+  "identifier": "warehouse.fact_orders",
+  "fields": [
+    {"name": "order_id", "type": "bigint", "optional": false},
+    {"name": "customer_id", "type": "bigint", "optional": true},
+    {"name": "order_ts", "type": "string", "optional": false},
+    {"name": "order_status", "type": "varchar", "optional": false},
+    {"name": "total_amount", "type": "decimal(10,2)", "optional": true},
+    {"name": "country_code", "type": "varchar", "optional": true},
+    {"name": "created_at", "type": "timestamptz", "optional": false}
+  ]
+}

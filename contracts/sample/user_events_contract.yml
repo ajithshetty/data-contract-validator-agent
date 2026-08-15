@@ -1,0 +1,81 @@
+name: user_events_contract
+version: "2.0"
+table: warehouse.fact_user_events
+owner: analytics-eng@company.com
+description: >
+  Clickstream and behavioural event data. High volume (>1B rows/day).
+  Used for product analytics, ML feature pipelines, and engagement metrics.
+
+sla:
+  freshness_hours: 0.5
+  availability_pct: 99.5
+  max_daily_row_variance_pct: 20
+
+schema:
+  - name: event_id
+    type: varchar
+    nullable: false
+    description: UUID for each event
+    tests: [unique, not_null]
+
+  - name: user_id
+    type: bigint
+    nullable: true
+    description: Nullable for anonymous sessions
+
+  - name: session_id
+    type: varchar
+    nullable: false
+    description: Browser/app session identifier
+
+  - name: event_type
+    type: varchar
+    nullable: false
+    description: "e.g. page_view, click, add_to_cart, purchase"
+
+  - name: event_ts
+    type: bigint
+    nullable: false
+    description: Unix epoch milliseconds — NOT timestamptz
+
+  - name: page_url
+    type: varchar
+    nullable: true
+    description: URL where event occurred
+
+  - name: device_type
+    type: varchar
+    nullable: true
+    description: "mobile | desktop | tablet"
+
+  - name: ip_address
+    type: varchar
+    nullable: true
+    pii: true
+    description: Client IP — PII, must be masked or hashed in non-prod
+
+  - name: properties
+    type: varchar
+    nullable: true
+    description: JSON string of event-specific properties
+
+  - name: partition_date
+    type: date
+    nullable: false
+    description: Partition column — date of the event
+
+rules:
+  - severity: ERROR
+    description: event_id must be unique per partition_date
+  - severity: ERROR
+    description: event_ts must be stored as bigint (epoch ms), NOT timestamptz
+  - severity: ERROR
+    description: ip_address must be marked as PII
+  - severity: ERROR
+    description: partition_date must match the date derived from event_ts
+  - severity: WARNING
+    description: user_id may be null for anonymous events but session_id must always be present
+  - severity: WARNING
+    description: device_type should be one of mobile, desktop, tablet
+  - severity: WARNING
+    description: properties should be valid JSON string if not null

@@ -1,0 +1,26 @@
+models:
+  - name: fact_user_events
+    description: User clickstream events
+    columns:
+      - name: event_id
+        data_type: varchar
+        tests: [unique, not_null]
+      - name: user_id
+        data_type: bigint
+      - name: session_id
+        data_type: varchar
+        tests: [not_null]
+      - name: event_type
+        data_type: varchar
+        tests: [not_null]
+      - name: event_ts
+        data_type: timestamptz
+        tests: [not_null]
+      - name: page_url
+        data_type: varchar
+      - name: device_type
+        data_type: varchar
+      - name: ip_address
+        data_type: varchar
+      - name: properties
+        data_type: varchar

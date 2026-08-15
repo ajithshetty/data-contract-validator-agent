@@ -1,0 +1,82 @@
+name: orders_fact_contract
+version: "1.2"
+table: warehouse.fact_orders
+owner: data-platform@company.com
+description: >
+  Contract for the core orders fact table. Used by revenue, finance,
+  and product dashboards. SLA-critical.
+
+sla:
+  freshness_hours: 1
+  availability_pct: 99.9
+  max_row_count_variance_pct: 10
+
+schema:
+  - name: order_id
+    type: bigint
+    nullable: false
+    description: Unique order identifier
+    tests: [unique, not_null]
+
+  - name: customer_id
+    type: bigint
+    nullable: false
+    description: FK to dim_customers
+    tests: [not_null]
+
+  - name: order_ts
+    type: timestamptz
+    nullable: false
+    description: Order creation timestamp in UTC
+
+  - name: order_status
+    type: varchar
+    nullable: false
+    description: "One of: pending, confirmed, shipped, delivered, cancelled"
+
+  - name: total_amount
+    type: decimal(18,2)
+    nullable: false
+    description: Order total in EUR
+
+  - name: currency_code
+    type: varchar
+    nullable: false
+    description: ISO 4217 currency code
+
+  - name: country_code
+    type: varchar
+    nullable: true
+    description: ISO 3166-1 alpha-2 country code
+
+  - name: email
+    type: varchar
+    nullable: true
+    pii: true
+    description: Customer email — PII, must be masked in non-prod
+
+  - name: created_at
+    type: timestamptz
+    nullable: false
+    description: Row insertion timestamp
+
+  - name: updated_at
+    type: timestamptz
+    nullable: false
+    description: Row last-updated timestamp
+
+rules:
+  - severity: ERROR
+    description: order_id must be unique and never null
+  - severity: ERROR
+    description: total_amount must be >= 0
+  - severity: ERROR
+    description: order_ts must not be in the future
+  - severity: ERROR
+    description: email column must be classified as PII
+  - severity: WARNING
+    description: country_code should follow ISO 3166-1 alpha-2 format (2 chars)
+  - severity: WARNING
+    description: currency_code should follow ISO 4217 format (3 chars)
+  - severity: WARNING
+    description: updated_at should always be >= created_at
