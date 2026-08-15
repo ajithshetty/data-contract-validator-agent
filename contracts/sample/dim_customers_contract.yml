@@ -1,0 +1,85 @@
+name: dim_customers_contract
+version: "1.0"
+table: warehouse.dim_customers
+owner: data-platform@company.com
+description: >
+  Customer dimension table. SCD Type 2. Source of truth for customer
+  attributes across all downstream models and dashboards.
+
+sla:
+  freshness_hours: 6
+  availability_pct: 99.0
+
+schema:
+  - name: customer_sk
+    type: bigint
+    nullable: false
+    description: Surrogate key (SCD2)
+    tests: [unique, not_null]
+
+  - name: customer_id
+    type: bigint
+    nullable: false
+    description: Natural/business key
+
+  - name: full_name
+    type: varchar
+    nullable: true
+    pii: true
+    description: Customer full name — PII
+
+  - name: email
+    type: varchar
+    nullable: false
+    pii: true
+    description: Customer email — PII, primary contact
+
+  - name: phone
+    type: varchar
+    nullable: true
+    pii: true
+    description: Phone number — PII
+
+  - name: country_code
+    type: varchar
+    nullable: false
+    description: ISO 3166-1 alpha-2
+
+  - name: customer_segment
+    type: varchar
+    nullable: true
+    description: "e.g. premium, standard, trial"
+
+  - name: is_active
+    type: boolean
+    nullable: false
+    description: Whether the customer account is active
+
+  - name: valid_from
+    type: timestamptz
+    nullable: false
+    description: SCD2 validity start
+
+  - name: valid_to
+    type: timestamptz
+    nullable: true
+    description: SCD2 validity end — null means current record
+
+  - name: is_current
+    type: boolean
+    nullable: false
+    description: True if this is the current SCD2 record
+
+rules:
+  - severity: ERROR
+    description: customer_sk must be unique (surrogate key)
+  - severity: ERROR
+    description: email must never be null and must be marked as PII
+  - severity: ERROR
+    description: full_name, email, phone must all be marked as PII
+  - severity: ERROR
+    description: valid_to must be null for current records (is_current = true)
+  - severity: WARNING
+    description: customer_segment should be one of premium, standard, trial, churned
+  - severity: WARNING
+    description: is_current and valid_to should be consistent — is_current=true implies valid_to is null
