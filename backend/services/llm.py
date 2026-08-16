@@ -19,4 +19,14 @@ def invoke(user_prompt: str, system_prompt: str = "") -> str:
     if system_prompt:
         messages.append(SystemMessage(content=system_prompt))
     messages.append(HumanMessage(content=user_prompt))
-    return llm.invoke(messages).content
+    content = llm.invoke(messages).content
+
+    if isinstance(content, list):
+        # Claude can return multiple content blocks (e.g. thinking + text);
+        # only the text blocks make up the actual response.
+        return "".join(
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        )
+    return content
