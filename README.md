@@ -1,4 +1,4 @@
-# 📋 Data Contract Validator
+# Data Contract Validator
 
 A LangGraph RAG agent that validates Iceberg schemas, dbt model definitions, and SQL DDL against YAML data contracts stored in a Qdrant vector database.
 
@@ -28,7 +28,7 @@ Violations are classified as **ERROR** (blocks deployment) or **WARNING** (flagg
 ## Project Structure
 
 ```
-data-contract-validator/
+data-contract-validator-agent/
 ├── backend/
 │   ├── config/settings.py         # All parameters, env-driven
 │   ├── graph/agent.py             # LangGraph 6-node state machine
@@ -230,3 +230,6 @@ All parameters in `.env`:
 **Backend unreachable in UI** — confirm backend is on port 8000 and CORS includes `http://localhost:5173`.
 
 **`ModuleNotFoundError`** — run from project root: `python -m backend.main`.
+
+
+## Built with love from Claude and Cursor
